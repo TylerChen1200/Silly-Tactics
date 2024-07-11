@@ -1,0 +1,60 @@
+.tft-team-builder {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .main-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  
+  .side-panel {
+    flex: 0 0 200px;
+  }
+  
+  .board-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .board {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 700px;
+    aspect-ratio: 7 / 4;
+  }
+  
+  .large-header {
+    font-size: 3em; 
+    font-weight: bold;
+  }
+  
+  @media (max-width: 1200px) {
+    .main-content {
+      flex-direction: column;
+    }
+  
+    .side-panel {
+      flex: 0 0 auto;
+      width: 100%;
+    }
+  
+    .board-container {
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .board {
+      gap: 5px;
+    }
+  }

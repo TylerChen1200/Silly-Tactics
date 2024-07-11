@@ -1,0 +1,26 @@
+.tft-team-builder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #1a1a1a;
+  color: white;
+  min-height: 100vh;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.side-panel {
+  width: 200px;
+  padding: 20px;
+}
+
+header {
+  width: 100%;
+  text-align: center;
+  padding: 20px 0;
+}
+
