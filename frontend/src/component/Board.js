@@ -86,11 +86,10 @@ const Board = () => {
       <div className="app-title">
       <img src={process.env.PUBLIC_URL + '/assets/SillySprite.png'} alt="SillyTFT Icon" className="app-icon" />
       <div className="title-container">
-          <h1 className="large-header">SillyTFT</h1>
+          <h1 className="large-header">SillyTactics</h1>
           <h2 className="comp-name">{compName}</h2>
         </div>
       </div>
-
     </header>
       <div className="main-content">
         <div className="side-panel traits-panel">
