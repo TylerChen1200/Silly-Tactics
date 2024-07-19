@@ -1,12 +1,8 @@
 .board-tile {
   width: 100%;
   aspect-ratio: 1 / 1.15;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  background-color: #0a0c5a;
+  background-color: #0F4382;
 }
 
 .board-tile.empty {
@@ -52,6 +48,7 @@
   justify-content: center;
   gap: 2px;
 }
+
 
 .item-icon {
   width: 50%;

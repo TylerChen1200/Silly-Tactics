@@ -1,0 +1,26 @@
+.hex-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hex-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: -2px; /* Adjust this value to control vertical overlap */
+  width: 100%;
+}
+
+.hex-row.offset {
+  transform: translateX(43px); /* Half the width of a tile plus spacing */
+}
+
+.board-tile {
+  width: 80px; /* Set a fixed width */
+  height: 92px; /* Set a fixed height (1.15 times the width for hexagon shape) */
+  margin: 0 3px; /* Adds some horizontal spacing between tiles */
+}

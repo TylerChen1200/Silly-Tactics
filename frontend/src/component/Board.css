@@ -1,60 +1,160 @@
 .tft-team-builder {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.main-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.side-panel {
+  width: 200px;
+  min-width: 200px;
+  max-width: 20%;
+  flex-shrink: 0;
+}
+
+.board-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 700px;
+  aspect-ratio: 7 / 4;
+}
+
+.large-header {
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.traits-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+.trait-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+  background-color: #453fa3;
+  border-radius: 5px;
+}
+
+.trait-name {
+  font-weight: bold;
+  flex-grow: 1;
+  margin-right: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trait-count {
+  font-weight: bold;
+  color: #120404;
+  flex-shrink: 0;
+}
+
+.roll-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 200px;
+  min-width: 200px;
+  max-width: 20%;
+}
+
+.roll-button {
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+.roll-button:hover {
+  background-color: #45a049;
+}
+
+.roll-button:active {
+  background-color: #3e8e41;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+}
+
+.app-title {
+  display: flex;
+  align-items: center;
+}
+
+.app-icon {
+  width: 80px;
+  height: 80px;
+  margin-right: 10px;
+}
+
+@media (max-width: 1200px) {
   .main-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
+    flex-wrap: nowrap;
   }
-  
-  .side-panel {
-    flex: 0 0 200px;
+
+  .side-panel, .roll-button-container {
+    width: 150px;
+    min-width: 150px;
   }
-  
+
   .board-container {
     flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
-  
-  .board {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+  }
+
+  .side-panel, .roll-button-container {
     width: 100%;
-    max-width: 700px;
-    aspect-ratio: 7 / 4;
+    max-width: none;
   }
-  
+
+  .board-container {
+    order: -1;
+  }
+
+  .board {
+    gap: 5px;
+  }
+
   .large-header {
-    font-size: 3em; 
-    font-weight: bold;
+    font-size: 2em;
   }
-  
-  @media (max-width: 1200px) {
-    .main-content {
-      flex-direction: column;
-    }
-  
-    .side-panel {
-      flex: 0 0 auto;
-      width: 100%;
-    }
-  
-    .board-container {
-      width: 100%;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .board {
-      gap: 5px;
-    }
-  }
+}

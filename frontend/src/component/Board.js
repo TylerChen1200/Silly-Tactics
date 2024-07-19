@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import BoardTile from './BoardTile';
 import axios from 'axios';
+import HexagonGrid from './HexagonGrid';
 import './Board.css';
+
 
 const ROWS = 4;
 const TILES_PER_ROW = 7;
@@ -15,39 +17,42 @@ const Board = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchUnits = async () => {
-      try {
-        const response = await axios.get('/api/units_items');
-        const { seed, name, comp, activeTraits, traitThresholds } = response.data;
+  const fetchUnits = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('/api/units_items');
+      const { seed, name, comp, activeTraits, traitThresholds } = response.data;
 
-        setCompSeed(seed);
-        setCompName(name);
-        setActiveTraits(activeTraits);
-        setTraitThresholds(traitThresholds);
-        
-        console.log('trait threshold:', traitThresholds)
+      setCompSeed(seed);
+      setCompName(name);
+      setActiveTraits(activeTraits);
+      setTraitThresholds(traitThresholds);
+      
+      const newBoard = Array(ROWS * TILES_PER_ROW).fill().map(() => ({ champion: null }));
 
-        const newBoard = Array(ROWS * TILES_PER_ROW).fill().map(() => ({ champion: null }));
-
-        for (const unit of comp) {
-          let randomIndex;
-          do {
-            randomIndex = Math.floor(Math.random() * newBoard.length);
-          } while (newBoard[randomIndex].champion);
-          newBoard[randomIndex] = { champion: unit };
-        }
-
-        setUserBoard(newBoard);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
+      for (const unit of comp) {
+        let randomIndex;
+        do {
+          randomIndex = Math.floor(Math.random() * newBoard.length);
+        } while (newBoard[randomIndex].champion);
+        newBoard[randomIndex] = { champion: unit };
       }
-    };
 
+      setUserBoard(newBoard);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchUnits();
   }, []);
+
+  const handleRoll = () => {
+    fetchUnits();
+  };
 
   const renderActiveTraits = () => {
     return Object.entries(activeTraits)
@@ -67,33 +72,36 @@ const Board = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return <div className="loading"></div>;
   }
 
   if (error) {
     return <div className="error">Error: {error}</div>;
   }
 
+  
   return (
-    <div className="tft-team-builder">
-      <header>
-        <h1>Who let me cook</h1>
-        <h2>{compName}</h2>
-      </header>
+<div className="tft-team-builder">
+    <header className="app-header">
+      <div className="app-title">
+      <img src={process.env.PUBLIC_URL + '/assets/SillySprite.png'} alt="SillyTFT Icon" className="app-icon" />
+      <div className="title-container">
+          <h1 className="large-header">SillyTFT</h1>
+          <h2 className="comp-name">{compName}</h2>
+        </div>
+      </div>
+
+    </header>
       <div className="main-content">
         <div className="side-panel traits-panel">
           <h3>Active Traits</h3>
           {renderActiveTraits()}
         </div>
         <div className="board-container">
-          <div className="board">
-            {userBoard.map((tile, index) => (
-              <BoardTile key={index} tile={tile} />
-            ))}
-          </div>
+          <HexagonGrid tiles={userBoard} />
         </div>
         <div className="side-panel">
-          <p>No equipped items</p>
+          <button className="roll-button" onClick={handleRoll}>Roblox Rng Simulator</button>
         </div>
       </div>
     </div>
