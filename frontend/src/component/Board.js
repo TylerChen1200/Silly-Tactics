@@ -76,7 +76,7 @@ const Board = () => {
   }
 
   if (error) {
-    return <div className="error">Error: {error}</div>;
+    return <div className="error lol">Error: {error}</div>;
   }
 
   
