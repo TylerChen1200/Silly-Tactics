@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Board from './component/Board';
-import ErrorBoundary from './ErrorBoundary';
+import ErrorBoundary from './component/ErrorBoundary';
 
 const App = () => {
   const [userBoard, setUserBoard] = useState([]);
