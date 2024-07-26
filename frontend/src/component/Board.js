@@ -4,9 +4,16 @@ import axios from 'axios';
 import HexagonGrid from './HexagonGrid';
 import './Board.css';
 
-
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? 'http://your-elastic-beanstalk-url.elasticbeanstalk.com'
+  : 'http://localhost:3000';
 const ROWS = 4;
 const TILES_PER_ROW = 7;
+
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+});
 
 const Board = () => {
   const [userBoard, setUserBoard] = useState([]);
@@ -20,7 +27,7 @@ const Board = () => {
   const fetchUnits = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/units_items');
+      const response = await api.get('/api/units_items');
       const { seed, name, comp, activeTraits, traitThresholds } = response.data;
 
       setCompSeed(seed);
