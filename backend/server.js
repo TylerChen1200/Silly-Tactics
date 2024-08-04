@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 
-const DATA_FILE_PATH = path.join(__dirname, '14.11.1_cd.json');
+const DATA_FILE_PATH = path.join(__dirname, 'CDragonSet12TFT.json');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -68,50 +68,55 @@ const excludeSubstrings = [
 ];
 
 const excludeChampSubStrings = [
+  "TFT11_",
   'TFT5',
-  'TFT11_Tibbers',
+  'TFT_',
   'Armory',
   'Voidspawn',
   'Dummy',
   'TFT_BlueGolem',
   'TFT6_',
-  'TFT11_ExaltedCore',
-  'TFT11_Fortune',
+  'TFT12_EldritchDaisy',
+  'TFT12_EldritchMalphite',
+  'TFT12_EldritchVolibear',
+  'TFT12_EldritchBigVolibear',
+  'TFT12_EldritchVolibea',
   'DragonlordFlames',
   'TFT9_',
   'ZyraThornPlant',
   'AzirSoldier',
-  'TFT11_Kayle'
 ]
 
 const traitThresholds = {
-  Dragonlord: [2, 3, 4, 5],
-  Dryad: [2, 4, 6],
-  Fated: [3, 5, 7, 10],
-  Fortune: [3, 5, 7],
-  Ghostly: [2, 4, 6, 8],
-  Heavenly: [2, 3, 4, 5, 6, 7],
-  Inkshadow: [3, 5, 7],
-  Lovers: [1],
-  Mythic: [3, 5, 7, 10],
-  Porcelain: [2, 4, 6],
-  Storyweaver: [3, 5, 7, 10],
-  Umbral: [2, 4, 6, 8],
-  Altruist: [2, 3, 4],
-  Arcanist: [2, 4, 6, 8],
-  Artist: [1],
-  Behemoth: [2, 4, 6],
-  Bruiser: [2, 4, 6, 8],
-  Duelist: [2, 4, 6, 8],
-  Great: [1],
-  Invoker: [2, 4, 6],
-  Reaper: [2, 4],
-  Sage: [2, 3, 4, 5],
-  Sniper: [2, 4, 6],
-  "Spirit Walker": [1],
-  Trickshot: [2, 4],
-  Warden: [2, 4, 6]
+  Arcana: [2, 3, 4, 5],
+  Chrono: [2, 4, 6],
+  Dragon: [2, 3],
+  Druid: [1],
+  Eldritch: [3, 5, 7, 10],
+  Faerie: [2, 4, 6, 9],
+  Frost: [3, 5, 7, 9],
+  Honeymancy: [3, 5, 7],
+  Portal: [3, 6, 8, 10],
+  Pyro: [2, 3, 4, 5],
+  Ravenous: [1],
+  Sugarcraft: [2, 4, 6,],
+  Witchcraft: [2, 4, 6, 8],
+  Ascendant: [1],
+  Bastion: [2, 4, 6, 8],
+  "Bat Queen": [1],
+  "Best Friends": [1],
+  Blaster: [2, 4, 6],
+  Hunter: [2, 4, 6],
+  Incantor: [2, 4],
+  Mage: [3, 5, 7, 9],
+  Multistriker: [3, 5, 7, 9],
+  Preserver: [2, 4, 6, 8],
+  Scholar: [2, 4, 6],
+  Shapeshifter: [2, 4, 6, 8],
+  Vanguard: [2, 4, 6],
+  Warrior: [2, 4, 6],
 };
+
 
 function selectRandom(arr, num) {
   const shuffled = arr.sort(() => 0.5 - Math.random());
@@ -195,7 +200,7 @@ function generateCompName(champions) {
   ).pop();
 
   const specialChampion = champions.find(champion => champion.special);
-  const cleanedChampionName = specialChampion.characterName.replace(/^TFT11_/, '');
+  const cleanedChampionName = specialChampion.characterName.replace(/^TFT12_/, '');
 
   const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
 
@@ -237,14 +242,14 @@ app.get('/api/units_items', async (req, res) => {
             return;
           }
 
-          if (!parsedData || !parsedData.items || !parsedData.sets || !parsedData.sets["11"] || !parsedData.sets["11"].champions) {
+          if (!parsedData || !parsedData.items || !parsedData.sets || !parsedData.sets["12"] || !parsedData.sets["12"].champions) {
             console.error('Invalid JSON structure or missing required data');
             reject(new Error('Invalid JSON structure'));
             return;
           }
 
           const items = parsedData.items;
-          const champions = parsedData.sets["11"].champions;
+          const champions = parsedData.sets["12"].champions;
 
           const filteredItems = items.filter(item => 
             item.apiName && item.apiName.startsWith('TFT_Item_') && 
