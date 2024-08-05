@@ -6,7 +6,7 @@ const BoardTile = ({ tile }) => {
 
   const getImagePath = (characterName) => {
     const formattedName = characterName.toLowerCase().replace(/ /g, '_');
-    return `/assets/tft-champion/${formattedName}_mobile.png`;
+    return `/assets/tft-champion/${formattedName}_mobile.tft_set12.png`;
   };
 
   const getItemImagePath = (itemName) => {
