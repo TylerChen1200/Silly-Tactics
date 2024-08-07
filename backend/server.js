@@ -1,15 +1,7 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
-const { act } = require('@testing-library/react');
-const app = express();
-const PORT = process.env.PORT || 3001;
-
-app.use(cors());
 
 const DATA_FILE_PATH = path.join(__dirname, 'CDragonSet12TFT.json');
 
@@ -178,26 +170,6 @@ function countTraits(comp) {
   return activeTraits;
 }
 
-async function verifyServiceRoleAccess() {
-  try {
-    
-    const { data, error } = await supabase
-      .from('comps') 
-      .select('count')
-      .limit(1)
-
-    if (error) {
-      console.error('Service role authentication failed:', error)
-      return false
-    }
-
-    console.log('Service role authentication successful')
-    return true
-  } catch (error) {
-    console.error('Error verifying service role access:', error)
-    return false
-  }
-}
 function generateCompName(champions) {
   const adjectives = [
     "Inting", "Trolling", "Silly", "Goofy", "Chaotic", "Whimsical", "Moisty",
@@ -229,98 +201,80 @@ return `${randomAdjective} ${randomNumber} ${randomTime} ${randomLocation} ${mos
 }
 
 
-app.get('/api/units_items', async (req, res) => {
+app.use(express.static(path.join(__dirname, 'frontend/build')));
+
+
+exports.handler = async (event) => {
   console.log('Received request for /api/units_items');
   
   const generateNew = Math.random() < 0.5;
 
   if (generateNew) {
     try {
-      const formattedChampions = await new Promise((resolve, reject) => {
-        fs.readFile(DATA_FILE_PATH, 'utf8', (err, data) => {
-          if (err) {
-            console.error('Error reading the file:', err);
-            reject(err);
-            return;
-          }
+      const data = await fs.readFile(DATA_FILE_PATH, 'utf8');
+      let parsedData;
+      try {
+        parsedData = JSON.parse(data);
+      } catch (parseError) {
+        console.error('Error parsing JSON:', parseError);
+        return {
+          statusCode: 500,
+          body: JSON.stringify({ error: 'Error parsing JSON data' })
+        };
+      }
+      if (!parsedData || !parsedData.items || !parsedData.sets || !parsedData.sets["12"] || !parsedData.sets["12"].champions) {
+        console.error('Invalid JSON structure or missing required data');
+        return {
+          statusCode: 500,
+          body: JSON.stringify({ error: 'Invalid JSON structure' })
+        };
+      }
 
-          console.log('File read successfully');
-          let parsedData;
-          try {
-            parsedData = JSON.parse(data);
-          } catch (parseError) {
-            console.error('Error parsing JSON:', parseError);
-            reject(parseError);
-            return;
-          }
+      const items = parsedData.items;
+      const champions = parsedData.sets["12"].champions;
+      const filteredItems = items.filter(item => 
+        item.apiName && item.apiName.startsWith('TFT_Item_') && 
+        item.name && !item.name.toLowerCase().startsWith('tft_item_') &&
+        !item.name.toLowerCase().startsWith('game_item') &&
+        !containsExcludedSubstring(item.apiName) &&
+        item.from === null // come back to this
+      );
 
-          if (!parsedData || !parsedData.items || !parsedData.sets || !parsedData.sets["12"] || !parsedData.sets["12"].champions) {
-            console.error('Invalid JSON structure or missing required data');
-            reject(new Error('Invalid JSON structure'));
-            return;
-          }
+      const filteredChampions = champions.filter(champion => 
+        champion.apiName && 
+        !containsExcludedChampSubstring(champion.apiName) 
+      );
+      if (filteredChampions.length === 0) {
+        reject(new Error('No champions found matching the criteria'));
+        return;
+      }
 
-          const items = parsedData.items;
-          const champions = parsedData.sets["12"].champions;
+      const minChampions = Math.min(5, filteredChampions.length);
+      const maxChampions = Math.min(10, filteredChampions.length);
+      const randomCount = Math.floor(Math.random() * (maxChampions - minChampions + 1)) + minChampions;
+      const randomChampions = selectRandom(filteredChampions, randomCount);
 
-          const filteredItems = items.filter(item => 
-            item.apiName && item.apiName.startsWith('TFT_Item_') && 
-            item.name && !item.name.toLowerCase().startsWith('tft_item_') &&
-            !item.name.toLowerCase().startsWith('game_item') &&
-            !containsExcludedSubstring(item.apiName) &&
-            item.from === null // come back to this
-          );
-
-          const filteredChampions = champions.filter(champion => 
-            champion.apiName && 
-            !containsExcludedChampSubstring(champion.apiName) 
-          );
-
-          console.log(`Found ${filteredChampions.length} champions and ${filteredItems.length} items`);
-
-          if (filteredChampions.length === 0) {
-            reject(new Error('No champions found matching the criteria'));
-            return;
-          }
-
-          const minChampions = Math.min(5, filteredChampions.length);
-          const maxChampions = Math.min(10, filteredChampions.length);
-          const randomCount = Math.floor(Math.random() * (maxChampions - minChampions + 1)) + minChampions;
-          const randomChampions = selectRandom(filteredChampions, randomCount);
-
-          console.log(`Selected ${randomChampions.length} random champions`);
-
-          if (randomChampions.length > 0) {
-            const specialIndex = Math.floor(Math.random() * randomChampions.length);
-            randomChampions[specialIndex].special = true;
-            if (filteredItems.length > 0) {
-              randomChampions[specialIndex].items = selectRandom(filteredItems, Math.min(3, filteredItems.length)).map(item => ({
-                id: item.apiName,
-                name: item.name
-              }));
-            }
-          }
-
-          const formattedChampions = randomChampions.map(champion => ({
-            apiName: champion.apiName,
-            characterName: champion.characterName,
-            traits: champion.traits,
-            special: champion.special || false,
-            items: champion.items || []
+      if (randomChampions.length > 0) {
+        const specialIndex = Math.floor(Math.random() * randomChampions.length);
+        randomChampions[specialIndex].special = true;
+        if (filteredItems.length > 0) {
+          randomChampions[specialIndex].items = selectRandom(filteredItems, Math.min(3, filteredItems.length)).map(item => ({
+            id: item.apiName,
+            name: item.name
           }));
+        }
+      }
 
-          resolve(formattedChampions);
-        });
-      });
+      const formattedChampions = randomChampions.map(champion => ({
+        apiName: champion.apiName,
+        characterName: champion.characterName,
+        traits: champion.traits,
+        special: champion.special || false,
+        items: champion.items || []
+      }));
 
       const seed = crypto.randomBytes(16).toString('hex');
       const compName = generateCompName(formattedChampions);
-      
-      const isAuthenticated = await verifyServiceRoleAccess()
-      if (!isAuthenticated) {
-        console.error('Service role authentication failed')
-        return res.status(500).json({ error: 'Authentication failed' })
-      }
 
       const { data: insertedData, error: insertedError } = await supabase
         .from('comps')
@@ -328,16 +282,25 @@ app.get('/api/units_items', async (req, res) => {
 
       if (insertedError) {
         console.error('Error storing comp in Supabase:', insertedError);
-        return res.status(500).json({ error: 'Error storing comp' });
+        return {
+          statusCode: 500,
+          body: JSON.stringify({ error: 'Error storing comp' })
+        };
       }
 
       const activeTraits = countTraits(formattedChampions);
 
-      res.json({ seed, name: compName, comp: formattedChampions, activeTraits, traitThresholds });
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ seed, name: compName, comp: formattedChampions, activeTraits, traitThresholds })
+      };
 
     } catch (error) {
       console.error('Error generating new comp:', error);
-      return res.status(500).json({ error: 'Error generating new comp' });
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'Error generating new comp' })
+      };
     }
   } else {
     try {
@@ -349,12 +312,18 @@ app.get('/api/units_items', async (req, res) => {
 
       if (retrievedError) {
         console.error('Error retrieving comps from Supabase:', retrievedError);
-        return res.status(500).json({ error: 'Error retrieving comps' });
+        return {
+          statusCode: 500,
+          body: JSON.stringify({ error: 'Error retrieving comps' })
+        };
       }
 
       if (retrievedData.length === 0) {
         console.log('No comps found in Supabase');
-        return res.status(404).json({ error: 'No comps found' });
+        return {
+          statusCode: 404,
+          body: JSON.stringify({ error: 'No comps found' })
+        };
       }
 
       console.log('Retrieved data: worked!');
@@ -362,20 +331,22 @@ app.get('/api/units_items', async (req, res) => {
       const randomComp = retrievedData[Math.floor(Math.random() * retrievedData.length)];
       const activeTraits = countTraits(randomComp.comp);
 
-      res.json({
-        seed: randomComp.seed,
-        name: randomComp.name,
-        comp: randomComp.comp,
-        activeTraits: activeTraits,  
-        traitThresholds: traitThresholds 
-      });
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          seed: randomComp.seed,
+          name: randomComp.name,
+          comp: randomComp.comp,
+          activeTraits: activeTraits,  
+          traitThresholds: traitThresholds 
+        })
+      };
     } catch (error) {
       console.error('Error retrieving comp from Supabase:', error);
-      return res.status(500).json({ error: 'Error retrieving comp' });
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'Error retrieving comp' })
+      };
     }
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+};
