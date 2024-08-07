@@ -6,13 +6,13 @@ import RandomAugmentDisplay from './RandomAugmentDisplay';
 import './Board.css';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'http://sillytactics-env.eba-kri2mgma.us-east-1.elasticbeanstalk.com/'
-  : 'http://localhost:3000';
+? 'https://sillytactics-env.eba-kri2mgma.us-east-1.elasticbeanstalk.com/'
+: 'http://localhost:3000';
 const ROWS = 4;
 const TILES_PER_ROW = 7;
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+baseURL: API_BASE_URL,
 });
 
 const Board = () => {
