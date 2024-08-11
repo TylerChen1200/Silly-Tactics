@@ -1,0 +1,32 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-sillytactics-dev-0f0d0-authRole",
+      "UnauthRoleArn": "arn:aws:iam::926247642543:role/amplify-sillytactics-dev-0f0d0-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::926247642543:role/amplify-sillytactics-dev-0f0d0-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-sillytactics-dev-0f0d0-deployment",
+      "UnauthRoleName": "amplify-sillytactics-dev-0f0d0-unauthRole",
+      "StackName": "amplify-sillytactics-dev-0f0d0",
+      "StackId": "arn:aws:cloudformation:us-east-1:926247642543:stack/amplify-sillytactics-dev-0f0d0/e23d0930-545c-11ef-ba99-123c47e61df1",
+      "AmplifyAppId": "d223dts68xjof4"
+    },
+    "categories": {
+      "function": {
+        "tftApiFunction": {
+          "deploymentBucketName": "amplify-sillytactics-dev-0f0d0-deployment",
+          "s3Key": "amplify-builds/tftApiFunction-2b69344c506e756a6349-build.zip"
+        }
+      },
+      "api": {
+        "sillytacticsapi": {}
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d223dts68xjof4",
+          "type": "cicd"
+        }
+      }
+    }
+  }
+}
