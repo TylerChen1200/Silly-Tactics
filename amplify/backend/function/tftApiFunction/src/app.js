@@ -8,14 +8,9 @@ const DATA_FILE_PATH = path.join(__dirname, 'CDragonSet12TFT.json');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+
 
 const excludeSubstrings = [
   'Artifact',
