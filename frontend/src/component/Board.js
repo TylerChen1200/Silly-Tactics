@@ -34,6 +34,7 @@ const Board = () => {
     try {
       const response = await axios.get(API_UNITS_ITEMS_URL);
       const { seed, name, comp, activeTraits, traitThresholds } = response.data;
+      console.log('Fetched activeTraits:', activeTraits);
 
       setCompSeed(seed);
       setCompName(name);
@@ -81,7 +82,13 @@ const Board = () => {
     }
   
     return entries
-      .sort(([, a], [, b]) => (b.count || 0) - (a.count || 0))
+      .sort(([, a], [, b]) => {
+        if (!a || !b || typeof a !== 'object' || typeof b !== 'object') {
+          console.error('Invalid trait data in sorting:', a, b);
+          return 0;
+        }
+        return (b.count || 0) - (a.count || 0);
+      })
       .map(([trait, traitData]) => {
         if (!traitData || typeof traitData !== 'object') {
           console.error('Invalid trait data for', trait, ':', traitData);
@@ -112,7 +119,7 @@ const Board = () => {
   }
 
   if (error) {
-    return <div className="error lol">Error: {error}</div>;
+    return <div>Error with loading: {error}</div>;
   }
 
   return (
