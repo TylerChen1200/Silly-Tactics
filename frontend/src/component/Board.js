@@ -4,15 +4,13 @@ import axios from 'axios';
 import HexagonGrid from './HexagonGrid';
 import RandomAugmentDisplay from './RandomAugmentDisplay';
 import './Board.css';
+import { API_BASE_URL, API_UNITS_ITEMS_URL } from './config';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production'
-? 'https://sillytactics-env.eba-kri2mgma.us-east-1.elasticbeanstalk.com/'
-: 'http://localhost:3000';
 const ROWS = 4;
 const TILES_PER_ROW = 7;
 
 const api = axios.create({
-baseURL: API_BASE_URL,
+  baseURL: API_BASE_URL,
 });
 
 const Board = () => {
@@ -34,7 +32,7 @@ const Board = () => {
   const fetchUnits = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/api/units_items');
+      const response = await axios.get(API_UNITS_ITEMS_URL);
       const { seed, name, comp, activeTraits, traitThresholds } = response.data;
 
       setCompSeed(seed);
