@@ -1,14 +1,2 @@
-// src/config.js
-const API_ENDPOINT = 'https://your-api-id.execute-api.your-region.amazonaws.com/dev';
-
-export const API_URL = `${API_ENDPOINT}/api/units_items`;
-
-// Then in your component:
-import { API_URL } from './config';
-
-fetch(API_URL)
-  .then(response => response.json())
-  .then(data => {
-    // Handle your data
-  })
-  .catch(error => console.error('Error:', error));
+export const API_BASE_URL = process.env.REACT_APP_API_ENDPOINT || 'http://localhost:3000';
+export const API_UNITS_ITEMS_URL = `${API_BASE_URL}/api/units_items`;
