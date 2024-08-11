@@ -4,7 +4,7 @@ import axios from 'axios';
 import HexagonGrid from './HexagonGrid';
 import RandomAugmentDisplay from './RandomAugmentDisplay';
 import './Board.css';
-import { API_BASE_URL, API_UNITS_ITEMS_URL } from './config';
+import { API_BASE_URL, API_UNITS_ITEMS_URL } from '../config';
 
 const ROWS = 4;
 const TILES_PER_ROW = 7;
