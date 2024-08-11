@@ -1,8 +1,14 @@
 const fs = require('fs').promises;
 const path = require('path');
+const express = require('express');
+const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
+require('dotenv').config();
+const app = express();
+const PORT = process.env.PORT || 3001;
 
+app.use(cors());
 const DATA_FILE_PATH = path.join(__dirname, 'CDragonSet12TFT.json');
 
 const supabase = createClient(
@@ -350,3 +356,12 @@ exports.handler = async (event) => {
     }
   }
 };
+
+app.get('/api/units_items', async (req, res) => {
+  const response = await exports.handler();  
+  res.status(response.statusCode).json(JSON.parse(response.body));
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
