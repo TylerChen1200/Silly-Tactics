@@ -34,6 +34,7 @@ const Board = () => {
     try {
       const response = await axios.get(API_UNITS_ITEMS_URL);
       const { seed, name, comp, activeTraits, traitThresholds } = response.data;
+      console.log('Fetched data:', response.data);
       console.log('Fetched activeTraits:', activeTraits);
 
       setCompSeed(seed);
