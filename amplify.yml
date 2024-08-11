@@ -1,32 +1,28 @@
 version: 1
-backend:
-  phases:
-    build:
-      commands:
-        - pwd
-        - ls -la
-        - cd backend
-        - npm ci
-  artifacts:
-    baseDirectory: backend
-    files:
-      - '**/*'
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - pwd
-        - ls -la
-        - cd frontend || echo "Frontend directory not found"
-        - ls -la || echo "Cannot list frontend directory contents"
-        - npm ci
-    build:
-      commands:
-        - npm run build
-  artifacts:
-    baseDirectory: frontend/build
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - node_modules/**/*
+applications:
+  - backend:
+      phases:
+        build:
+          commands:
+            - cd backend
+            - npm ci
+      artifacts:
+        baseDirectory: backend
+        files:
+          - '**/*'
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - cd $CODEBUILD_SRC_DIR/frontend
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: frontend/build
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
