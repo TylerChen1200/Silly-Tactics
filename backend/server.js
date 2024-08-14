@@ -1,26 +1,19 @@
 const fs = require('fs').promises;
 const path = require('path');
-const express = require('express');
-const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 require('dotenv').config();
-const app = express();
-const PORT = process.env.PORT || 3001;
 
-app.use(cors());
 const DATA_FILE_PATH = path.join(__dirname, 'CDragonSet12TFT.json');
+
+
+console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
+console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 
 const excludeSubstrings = [
@@ -95,7 +88,7 @@ const excludeChampSubStrings = [
   "tft12_shyvanadragon",
   'ZyraThornPlant',
   'AzirSoldier',
-]
+];
 
 const traitThresholds = {
   Arcana: [2, 3, 4, 5],
@@ -127,11 +120,6 @@ const traitThresholds = {
   Warrior: [2, 4, 6],
 };
 
-
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
-
 function selectRandom(arr, num) {
   const shuffled = arr.sort(() => 0.5 - Math.random());
   return shuffled.slice(0, num);
@@ -144,7 +132,6 @@ function containsExcludedChampSubstring(championId) {
 function containsExcludedSubstring(itemId) {
   return itemId && excludeSubstrings.some(substring => itemId.toLowerCase().includes(substring.toLowerCase()));
 }
-
 
 function countTraits(comp) {
   const traitCounts = {};
@@ -187,7 +174,6 @@ function generateCompName(champions) {
     "Peculiar", "Eccentric", "Unconventional", "Quirky"
   ];
 
-
   const traits = champions.flatMap(champion => champion.traits);
   const mostCommonTrait = traits.sort((a, b) =>
     traits.filter(v => v === a).length - traits.filter(v => v === b).length
@@ -198,21 +184,16 @@ function generateCompName(champions) {
 
   const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
 
-const numbers = ["Double", "Triple", "Quadruple", "Quintuple"];
-const times = ["Dawn", "Midday", "Dusk", "Midnight", "Donger"];
-const locations = ["Back Alley", "High Roller", "Underdog", "Top Deck"];
+  const numbers = ["Double", "Triple", "Quadruple", "Quintuple"];
+  const times = ["Dawn", "Midday", "Dusk", "Midnight", "Donger"];
+  const locations = ["Back Alley", "High Roller", "Underdog", "Top Deck"];
 
+  const randomNumber = numbers[Math.floor(Math.random() * numbers.length)];
+  const randomTime = times[Math.floor(Math.random() * times.length)];
+  const randomLocation = locations[Math.floor(Math.random() * locations.length)];
 
-const randomNumber = numbers[Math.floor(Math.random() * numbers.length)];
-const randomTime = times[Math.floor(Math.random() * times.length)];
-const randomLocation = locations[Math.floor(Math.random() * locations.length)];
-
-return `${randomAdjective} ${randomNumber} ${randomTime} ${randomLocation} ${mostCommonTrait} ${cleanedChampionName}`;
+  return `${randomAdjective} ${randomNumber} ${randomTime} ${randomLocation} ${mostCommonTrait} ${cleanedChampionName}`;
 }
-
-
-app.use(express.static(path.join(__dirname, 'frontend/build')));
-
 
 exports.handler = async (event) => {
   console.log('Received request for /api/units_items');
@@ -247,7 +228,7 @@ exports.handler = async (event) => {
         item.name && !item.name.toLowerCase().startsWith('tft_item_') &&
         !item.name.toLowerCase().startsWith('game_item') &&
         !containsExcludedSubstring(item.apiName) &&
-        item.from === null // come back to this
+        item.from === null 
       );
 
       const filteredChampions = champions.filter(champion => 
@@ -255,8 +236,10 @@ exports.handler = async (event) => {
         !containsExcludedChampSubstring(champion.apiName) 
       );
       if (filteredChampions.length === 0) {
-        reject(new Error('No champions found matching the criteria'));
-        return;
+        return {
+          statusCode: 500,
+          body: JSON.stringify({ error: 'No champions found matching the criteria' })
+        };
       }
 
       const minChampions = Math.min(5, filteredChampions.length);
@@ -336,8 +319,6 @@ exports.handler = async (event) => {
         };
       }
 
-      console.log('Retrieved data: worked!');
-
       const randomComp = retrievedData[Math.floor(Math.random() * retrievedData.length)];
       const activeTraits = countTraits(randomComp.comp);
 
@@ -360,12 +341,3 @@ exports.handler = async (event) => {
     }
   }
 };
-
-app.get('/api/units_items', async (req, res) => {
-  const response = await exports.handler();  
-  res.status(response.statusCode).json(JSON.parse(response.body));
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});

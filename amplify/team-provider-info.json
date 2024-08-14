@@ -15,7 +15,7 @@
       "function": {
         "tftApiFunction": {
           "deploymentBucketName": "amplify-sillytactics-dev-0f0d0-deployment",
-          "s3Key": "amplify-builds/tftApiFunction-454f326b5a7339416444-build.zip"
+          "s3Key": "amplify-builds/tftApiFunction-50476533506f4d71455a-build.zip"
         }
       },
       "api": {

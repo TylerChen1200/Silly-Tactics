@@ -6,6 +6,10 @@ require('dotenv').config();
 
 const DATA_FILE_PATH = path.join(__dirname, 'CDragonSet12TFT.json');
 
+
+console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
+console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY);
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
