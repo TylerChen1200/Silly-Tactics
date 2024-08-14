@@ -46,6 +46,22 @@
         }
       ]
     },
+    "AMPLIFY_function_tftApiFunction_supabaseServiceRoleKey": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tftApiFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_tftApiFunction_supabaseUrl": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "tftApiFunction"
+        }
+      ]
+    },
     "AMPLIFY_hosting_amplifyhosting_appId": {
       "usedBy": [
         {

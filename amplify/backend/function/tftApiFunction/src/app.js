@@ -1,21 +1,29 @@
-const fs = require('fs').promises;
-const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
-require('dotenv').config();
 
-const DATA_FILE_PATH = path.join(__dirname, 'CDragonSet12TFT.json');
-
-
-console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
-console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY);
+// Load and parse JSON data once, during cold start
+const parsedData = require('./CDragonSet12TFT.json');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+// Pre-filter items and champions
+const filteredItems = parsedData.items.filter(item => 
+  item.apiName && 
+  item.apiName.startsWith('TFT_Item_') && 
+  item.name && 
+  !item.name.toLowerCase().startsWith('tft_item_') &&
+  !item.name.toLowerCase().startsWith('game_item') &&
+  !containsExcludedSubstring(item.apiName) &&
+  item.from === null 
+);
 
+const filteredChampions = parsedData.sets["12"].champions.filter(champion => 
+  champion.apiName && 
+  !containsExcludedChampSubstring(champion.apiName)
+);
 const excludeSubstrings = [
   'Artifact',
   'Debug',
@@ -195,6 +203,7 @@ function generateCompName(champions) {
   return `${randomAdjective} ${randomNumber} ${randomTime} ${randomLocation} ${mostCommonTrait} ${cleanedChampionName}`;
 }
 
+
 exports.handler = async (event) => {
   console.log('Received request for /api/units_items');
   
@@ -202,49 +211,7 @@ exports.handler = async (event) => {
 
   if (generateNew) {
     try {
-      const data = await fs.readFile(DATA_FILE_PATH, 'utf8');
-      let parsedData;
-      try {
-        parsedData = JSON.parse(data);
-      } catch (parseError) {
-        console.error('Error parsing JSON:', parseError);
-        return {
-          statusCode: 500,
-          body: JSON.stringify({ error: 'Error parsing JSON data' })
-        };
-      }
-      if (!parsedData || !parsedData.items || !parsedData.sets || !parsedData.sets["12"] || !parsedData.sets["12"].champions) {
-        console.error('Invalid JSON structure or missing required data');
-        return {
-          statusCode: 500,
-          body: JSON.stringify({ error: 'Invalid JSON structure' })
-        };
-      }
-
-      const items = parsedData.items;
-      const champions = parsedData.sets["12"].champions;
-      const filteredItems = items.filter(item => 
-        item.apiName && item.apiName.startsWith('TFT_Item_') && 
-        item.name && !item.name.toLowerCase().startsWith('tft_item_') &&
-        !item.name.toLowerCase().startsWith('game_item') &&
-        !containsExcludedSubstring(item.apiName) &&
-        item.from === null 
-      );
-
-      const filteredChampions = champions.filter(champion => 
-        champion.apiName && 
-        !containsExcludedChampSubstring(champion.apiName) 
-      );
-      if (filteredChampions.length === 0) {
-        return {
-          statusCode: 500,
-          body: JSON.stringify({ error: 'No champions found matching the criteria' })
-        };
-      }
-
-      const minChampions = Math.min(5, filteredChampions.length);
-      const maxChampions = Math.min(10, filteredChampions.length);
-      const randomCount = Math.floor(Math.random() * (maxChampions - minChampions + 1)) + minChampions;
+      const randomCount = Math.floor(Math.random() * (Math.min(10, filteredChampions.length) - Math.min(5, filteredChampions.length) + 1)) + Math.min(5, filteredChampions.length);
       const randomChampions = selectRandom(filteredChampions, randomCount);
 
       if (randomChampions.length > 0) {
@@ -269,7 +236,7 @@ exports.handler = async (event) => {
       const seed = crypto.randomBytes(16).toString('hex');
       const compName = generateCompName(formattedChampions);
 
-      const { data: insertedData, error: insertedError } = await supabase
+      const { error: insertedError } = await supabase
         .from('comps')
         .insert({ seed, name: compName, comp: formattedChampions });
 
