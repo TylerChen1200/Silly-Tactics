@@ -1,29 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 
-// Load and parse JSON data once, during cold start
-const parsedData = require('./CDragonSet12TFT.json');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
-// Pre-filter items and champions
-const filteredItems = parsedData.items.filter(item => 
-  item.apiName && 
-  item.apiName.startsWith('TFT_Item_') && 
-  item.name && 
-  !item.name.toLowerCase().startsWith('tft_item_') &&
-  !item.name.toLowerCase().startsWith('game_item') &&
-  !containsExcludedSubstring(item.apiName) &&
-  item.from === null 
-);
-
-const filteredChampions = parsedData.sets["12"].champions.filter(champion => 
-  champion.apiName && 
-  !containsExcludedChampSubstring(champion.apiName)
-);
 const excludeSubstrings = [
   'Artifact',
   'Debug',
@@ -127,6 +105,31 @@ const traitThresholds = {
   Vanguard: [2, 4, 6],
   Warrior: [2, 4, 6],
 };
+
+
+const parsedData = require('./CDragonSet12TFT.json');
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+
+const filteredItems = parsedData.items.filter(item => 
+  item.apiName && 
+  item.apiName.startsWith('TFT_Item_') && 
+  item.name && 
+  !item.name.toLowerCase().startsWith('tft_item_') &&
+  !item.name.toLowerCase().startsWith('game_item') &&
+  !containsExcludedSubstring(item.apiName) &&
+  item.from === null 
+);
+
+const filteredChampions = parsedData.sets["12"].champions.filter(champion => 
+  champion.apiName && 
+  !containsExcludedChampSubstring(champion.apiName)
+);
+
 
 function selectRandom(arr, num) {
   const shuffled = arr.sort(() => 0.5 - Math.random());

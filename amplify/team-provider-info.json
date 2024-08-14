@@ -15,7 +15,7 @@
       "function": {
         "tftApiFunction": {
           "deploymentBucketName": "amplify-sillytactics-dev-0f0d0-deployment",
-          "s3Key": "amplify-builds/tftApiFunction-5754736d766455506555-build.zip",
+          "s3Key": "amplify-builds/tftApiFunction-79687a397942796a7175-build.zip",
           "supabaseUrl": "https://jufonvlphqbnxrvchlwb.supabase.co",
           "supabaseServiceRoleKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1Zm9udmxwaHFibnhydmNobHdiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyMDQzMDYzNiwiZXhwIjoyMDM2MDA2NjM2fQ.78b9s9fLRz3j-eHAULL4gWtz1tj5haegRN5K4is8UzU"
         }
