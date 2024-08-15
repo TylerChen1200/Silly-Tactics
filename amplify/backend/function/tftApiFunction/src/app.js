@@ -1,6 +1,17 @@
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 
+function addCorsHeaders(responseBody) {
+  return {
+    statusCode: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "https://www.sillytactics.com", // Replace with your actual domain
+      "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+      "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
+    },
+    body: JSON.stringify(responseBody)
+  };
+}
 
 const excludeSubstrings = [
   'Artifact',
@@ -209,6 +220,8 @@ function generateCompName(champions) {
 
 exports.handler = async (event) => {
   console.log('Received request for /api/units_items');
+  console.time('HandlerExecutionTime');
+  console.log('Received request for /api/units_items');
   
   const generateNew = Math.random() < 0.5;
 
@@ -253,17 +266,17 @@ exports.handler = async (event) => {
 
       const activeTraits = countTraits(formattedChampions);
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ seed, name: compName, comp: formattedChampions, activeTraits, traitThresholds })
-      };
+      return addCorsHeaders({
+        seed, 
+        name: compName, 
+        comp: formattedChampions, 
+        activeTraits, 
+        traitThresholds
+      });
 
     } catch (error) {
       console.error('Error generating new comp:', error);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Error generating new comp' })
-      };
+      return addCorsHeaders({ error: 'Error retrieving comps' });
     }
   } else {
     try {
@@ -283,31 +296,23 @@ exports.handler = async (event) => {
 
       if (retrievedData.length === 0) {
         console.log('No comps found in Supabase');
-        return {
-          statusCode: 404,
-          body: JSON.stringify({ error: 'No comps found' })
-        };
+        return addCorsHeaders({ error: 'No comps found' });
       }
 
       const randomComp = retrievedData[Math.floor(Math.random() * retrievedData.length)];
       const activeTraits = countTraits(randomComp.comp);
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          seed: randomComp.seed,
-          name: randomComp.name,
-          comp: randomComp.comp,
-          activeTraits: activeTraits,  
-          traitThresholds: traitThresholds 
-        })
-      };
+      return addCorsHeaders({
+        seed: randomComp.seed,
+        name: randomComp.name,
+        comp: randomComp.comp,
+        activeTraits: activeTraits,  
+        traitThresholds: traitThresholds 
+      });
+
     } catch (error) {
       console.error('Error retrieving comp from Supabase:', error);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Error retrieving comp' })
-      };
+      return addCorsHeaders({ error: 'Error retrieving comp' });
     }
   }
 };
