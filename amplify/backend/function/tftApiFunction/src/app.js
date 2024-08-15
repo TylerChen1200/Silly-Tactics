@@ -3,23 +3,28 @@ const crypto = require('crypto');
 
 function addCorsHeaders(responseBody, event) {
   const allowedOrigins = ["https://www.sillytactics.com", "https://sillytactics.com"];
-  const origin = event.headers.origin;
-
+  const origin = event.headers.origin || event.headers.Origin || '';
+  
+  console.log('Received origin:', origin);  
+  
   const headers = {
     "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
-    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
+    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
   };
 
   if (allowedOrigins.includes(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
   } else {
-    headers["Access-Control-Allow-Origin"] = "null";  
+    headers["Access-Control-Allow-Origin"] = allowedOrigins[0];  
+    console.log('Origin not in allowed list, defaulting to:', allowedOrigins[0]);  
   }
 
+  console.log('Response headers:', headers);  
+
   return {
-    statusCode: 200,
+    statusCode: responseBody.error ? (responseBody.error === 'No comps found' ? 404 : 500) : 200,
     headers: headers,
-    body: JSON.stringify(responseBody)
+    body: JSON.stringify(responseBody),
   };
 }
 
