@@ -5,7 +5,7 @@ function addCorsHeaders(responseBody) {
   return {
     statusCode: 200,
     headers: {
-      "Access-Control-Allow-Origin": "https://www.sillytactics.com", // Replace with your actual domain
+      "Access-Control-Allow-Origin": "https://www.sillytactics.com, https://sillytactics.com",
       "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
       "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
     },
