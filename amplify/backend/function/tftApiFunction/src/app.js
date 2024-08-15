@@ -1,14 +1,24 @@
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 
-function addCorsHeaders(responseBody) {
+function addCorsHeaders(responseBody, event) {
+  const allowedOrigins = ["https://www.sillytactics.com", "https://sillytactics.com"];
+  const origin = event.headers.origin;
+
+  const headers = {
+    "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
+  };
+
+  if (allowedOrigins.includes(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  } else {
+    headers["Access-Control-Allow-Origin"] = "null";  
+  }
+
   return {
     statusCode: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "https://www.sillytactics.com, https://sillytactics.com",
-      "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
-      "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
-    },
+    headers: headers,
     body: JSON.stringify(responseBody)
   };
 }
