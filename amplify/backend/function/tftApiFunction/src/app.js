@@ -236,7 +236,6 @@ function generateCompName(champions) {
 exports.handler = async (event) => {
   console.log('Received request for /api/units_items');
   console.time('HandlerExecutionTime');
-  console.log('Received request for /api/units_items');
   
   const generateNew = Math.random() < 0.5;
 
@@ -281,17 +280,17 @@ exports.handler = async (event) => {
 
       const activeTraits = countTraits(formattedChampions);
 
+      console.timeEnd('HandlerExecutionTime');
       return addCorsHeaders({
-        seed, 
-        name: compName, 
-        comp: formattedChampions, 
-        activeTraits, 
+        seed,
+        name: compName,
+        comp: formattedChampions,
+        activeTraits,
         traitThresholds
-      });
-
+      }, event);
     } catch (error) {
-      console.error('Error generating new comp:', error);
-      return addCorsHeaders({ error: 'Error retrieving comps' });
+      console.error('Error in handler:', error);
+      return addCorsHeaders({ error: 'Internal Server Error', details: error.message }, event);
     }
   } else {
     try {
@@ -317,6 +316,7 @@ exports.handler = async (event) => {
       const randomComp = retrievedData[Math.floor(Math.random() * retrievedData.length)];
       const activeTraits = countTraits(randomComp.comp);
 
+      console.timeEnd('HandlerExecutionTime');
       return addCorsHeaders({
         seed: randomComp.seed,
         name: randomComp.name,
@@ -326,8 +326,8 @@ exports.handler = async (event) => {
       });
 
     } catch (error) {
-      console.error('Error retrieving comp from Supabase:', error);
-      return addCorsHeaders({ error: 'Error retrieving comp' });
+      console.error('Error in handler:', error);
+      return addCorsHeaders({ error: 'Internal Server Error', details: error.message }, event);
     }
   }
 };

@@ -57,6 +57,15 @@
         setUserBoard(newBoard);
       } catch (error) {
         console.error('Error fetching units:', error);
+        if (error.response) {
+          console.error('Response data:', error.response.data);
+          console.error('Response status:', error.response.status);
+          console.error('Response headers:', error.response.headers);
+        } else if (error.request) {
+          console.error('No response received:', error.request);
+        } else {
+          console.error('Error setting up request:', error.message);
+        }
         setError(error.response ? `${error.response.status}: ${error.response.data}` : error.message);
       } finally {
         setLoading(false);
