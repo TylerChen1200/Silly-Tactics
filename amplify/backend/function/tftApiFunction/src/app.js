@@ -10,19 +10,13 @@ function addCorsHeaders(responseBody, event) {
   const headers = {
     "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+    "Access-Control-Allow-Origin": allowedOrigins.includes(origin) ? origin : allowedOrigins[0]
   };
-
-  if (allowedOrigins.includes(origin)) {
-    headers["Access-Control-Allow-Origin"] = origin;
-  } else {
-    headers["Access-Control-Allow-Origin"] = allowedOrigins[0];  
-    console.log('Origin not in allowed list, defaulting to:', allowedOrigins[0]);  
-  }
 
   console.log('Response headers:', headers);  
 
   return {
-    statusCode: responseBody.error ? (responseBody.error === 'No comps found' ? 404 : 500) : 200,
+    statusCode: responseBody.error ? 500 : 200,
     headers: headers,
     body: JSON.stringify(responseBody),
   };
@@ -232,15 +226,18 @@ function generateCompName(champions) {
   return `${randomAdjective} ${randomNumber} ${randomTime} ${randomLocation} ${mostCommonTrait} ${cleanedChampionName}`;
 }
 
-
 exports.handler = async (event) => {
   console.log('Received request for /api/units_items');
   console.time('HandlerExecutionTime');
   
-  const generateNew = Math.random() < 0.5;
+  try {
+    const generateNew = Math.random() < 0.5;
+    console.log(`Generating new comp: ${generateNew}`);
 
-  if (generateNew) {
-    try {
+    let result;
+
+    if (generateNew) {
+      console.log('Generating new comp...');
       const randomCount = Math.floor(Math.random() * (Math.min(10, filteredChampions.length) - Math.min(5, filteredChampions.length) + 1)) + Math.min(5, filteredChampions.length);
       const randomChampions = selectRandom(filteredChampions, randomCount);
 
@@ -266,34 +263,27 @@ exports.handler = async (event) => {
       const seed = crypto.randomBytes(16).toString('hex');
       const compName = generateCompName(formattedChampions);
 
+      console.log('Inserting new comp into Supabase...');
       const { error: insertedError } = await supabase
         .from('comps')
         .insert({ seed, name: compName, comp: formattedChampions });
 
       if (insertedError) {
         console.error('Error storing comp in Supabase:', insertedError);
-        return {
-          statusCode: 500,
-          body: JSON.stringify({ error: 'Error storing comp' })
-        };
+        throw new Error('Error storing comp in Supabase');
       }
 
       const activeTraits = countTraits(formattedChampions);
 
-      console.timeEnd('HandlerExecutionTime');
-      return addCorsHeaders({
+      result = {
         seed,
         name: compName,
         comp: formattedChampions,
         activeTraits,
         traitThresholds
-      }, event);
-    } catch (error) {
-      console.error('Error in handler:', error);
-      return addCorsHeaders({ error: 'Internal Server Error', details: error.message }, event);
-    }
-  } else {
-    try {
+      };
+    } else {
+      console.log('Retrieving existing comp from Supabase...');
       const { data: retrievedData, error: retrievedError } = await supabase
         .from('comps')
         .select('*')
@@ -302,32 +292,30 @@ exports.handler = async (event) => {
 
       if (retrievedError) {
         console.error('Error retrieving comps from Supabase:', retrievedError);
-        return {
-          statusCode: 500,
-          body: JSON.stringify({ error: 'Error retrieving comps' })
-        };
+        throw new Error('Error retrieving comps from Supabase');
       }
 
       if (retrievedData.length === 0) {
         console.log('No comps found in Supabase');
-        return addCorsHeaders({ error: 'No comps found' });
+        throw new Error('No comps found');
       }
 
       const randomComp = retrievedData[Math.floor(Math.random() * retrievedData.length)];
       const activeTraits = countTraits(randomComp.comp);
 
-      console.timeEnd('HandlerExecutionTime');
-      return addCorsHeaders({
+      result = {
         seed: randomComp.seed,
         name: randomComp.name,
         comp: randomComp.comp,
-        activeTraits: activeTraits,  
-        traitThresholds: traitThresholds 
-      });
-
-    } catch (error) {
-      console.error('Error in handler:', error);
-      return addCorsHeaders({ error: 'Internal Server Error', details: error.message }, event);
+        activeTraits,
+        traitThresholds
+      };
     }
+
+    console.timeEnd('HandlerExecutionTime');
+    return addCorsHeaders(result, event);
+  } catch (error) {
+    console.error('Error in handler:', error);
+    return addCorsHeaders({ error: 'Internal Server Error', details: error.message }, event);
   }
 };
