@@ -56,7 +56,8 @@
 
         setUserBoard(newBoard);
       } catch (error) {
-        setError(error.message);
+        console.error('Error fetching units:', error);
+        setError(error.response ? `${error.response.status}: ${error.response.data}` : error.message);
       } finally {
         setLoading(false);
       }
